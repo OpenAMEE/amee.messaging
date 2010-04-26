@@ -1,0 +1,95 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Identity. -->
+    <name>amee-messaging</name>
+    <groupId>com.amee</groupId>
+    <artifactId>amee-messaging</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <!-- Properties. -->
+    <properties>
+        <!-- Versions. -->
+        <!-- Note: These versions were last checked & upgraded on 15/04/2010. -->
+        <amee-base.version>1.0.1-SNAPSHOT</amee-base.version>
+        <commons-io.version>1.4</commons-io.version>
+        <rabbitmq.version>1.7.2</rabbitmq.version>
+        <spring.version>3.0.2.RELEASE</spring.version>
+        <!-- Other. -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <!-- Build Plugins. -->
+    <build>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>1.6</source>
+                        <target>1.6</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+    </build>
+
+    <!-- Dependencies. -->
+    <dependencies>
+
+        <!-- Internal Dependencies. -->
+        <dependency>
+            <groupId>com.amee</groupId>
+            <artifactId>amee-base</artifactId>
+            <version>${amee-base.version}</version>
+        </dependency>
+
+        <!-- Compile Dependencies. -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>${rabbitmq.version}</version>
+        </dependency>
+        <dependency>
+            <!-- For RabbitMQ. -->
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <!-- Distribution Management. -->
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>Releases Repository</name>
+            <url>https://nexus.amee.com/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Snapshots Repository</name>
+            <url>https://nexus.amee.com/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <!-- Version Control. -->
+    <scm>
+        <connection>scm:git:ssh://git@github.com/AMEE/amee.messaging.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/AMEE/amee.messaging.git</developerConnection>
+        <url>scm:git:ssh://git@github.com/AMEE/amee.messaging.git</url>
+    </scm>
+
+</project>
