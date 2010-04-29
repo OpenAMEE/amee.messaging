@@ -1,6 +1,5 @@
 package com.amee.messaging;
 
-import com.amee.base.transaction.TransactionController;
 import com.amee.messaging.config.ExchangeConfig;
 import com.amee.messaging.config.MessagingConfig;
 import com.amee.messaging.config.QueueConfig;
@@ -19,9 +18,6 @@ import java.io.IOException;
 public abstract class MessageConsumer implements Runnable, ApplicationContextAware {
 
     private final Log log = LogFactory.getLog(getClass());
-
-    @Autowired
-    private TransactionController transactionController;
 
     @Autowired
     protected MessageService messageService;
@@ -54,7 +50,6 @@ public abstract class MessageConsumer implements Runnable, ApplicationContextAwa
     public void run() {
         log.info("run()");
         while (!Thread.currentThread().isInterrupted()) {
-            transactionController.begin(false);
             try {
                 log.debug("run() Waiting.");
                 // Wait before first-run and subsequent retries.
@@ -74,7 +69,6 @@ public abstract class MessageConsumer implements Runnable, ApplicationContextAwa
                 closeAndClear();
                 return;
             }
-            transactionController.end();
         }
     }
 

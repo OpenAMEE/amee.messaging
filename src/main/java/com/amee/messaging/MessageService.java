@@ -2,8 +2,8 @@ package com.amee.messaging;
 
 import com.amee.messaging.config.ConnectionConfig;
 import com.amee.messaging.config.ExchangeConfig;
-import com.amee.messaging.config.QueueConfig;
 import com.amee.messaging.config.PublishConfig;
+import com.amee.messaging.config.QueueConfig;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -79,11 +79,22 @@ public class MessageService {
         }
     }
 
+    public Channel getChannel(ExchangeConfig exchangeConfig) throws IOException {
+        log.debug("getChannel()");
+        // Try to get a channel.
+        Channel channel = getChannel();
+        if (channel != null) {
+            // Ensure exchange is declared.
+            exchangeDeclare(channel, exchangeConfig);
+        }
+        return channel;
+    }
+
     public Channel getChannelAndBind(
             ExchangeConfig exchangeConfig,
             QueueConfig queueConfig,
             String bindingKey) throws IOException {
-        log.debug("consume() " + bindingKey);
+        log.debug("getChannelAndBind() " + bindingKey);
         // Try to get a channel.
         Channel channel = getChannel();
         if (channel != null) {
