@@ -1,5 +1,6 @@
 package com.amee.messaging.resource;
 
+import com.amee.base.domain.VersionBeanFinder;
 import com.amee.base.resource.RequestWrapper;
 import com.amee.base.resource.ResourceHandler;
 import com.amee.messaging.RpcMessageConsumer;
@@ -21,6 +22,9 @@ public class RequestWrapperMessageConsumer extends RpcMessageConsumer {
     private final static XMLOutputter XML_OUTPUTTER = new XMLOutputter();
 
     @Autowired
+    private VersionBeanFinder versionBeanFinder;
+
+    @Autowired
     @Qualifier("requestWrapperExchange")
     private ExchangeConfig exchangeConfig;
 
@@ -32,10 +36,10 @@ public class RequestWrapperMessageConsumer extends RpcMessageConsumer {
         try {
             // Obtain RequestWrapper.
             RequestWrapper requestWrapper = new RequestWrapper(new JSONObject(message));
+            Object target = versionBeanFinder.getBeanForVersion(requestWrapper.getTarget(), requestWrapper.getVersion());
             // Lookup target bean.
-            if (applicationContext.containsBean(requestWrapper.getTarget())) {
+            if (target != null) {
                 // Target bean found, send request there and get result object.
-                Object target = applicationContext.getBean(requestWrapper.getTarget());
                 // Only ResourceHandler derived implementations are supported.
                 if (ResourceHandler.class.isAssignableFrom(target.getClass())) {
                     return handle(requestWrapper, (ResourceHandler) target);

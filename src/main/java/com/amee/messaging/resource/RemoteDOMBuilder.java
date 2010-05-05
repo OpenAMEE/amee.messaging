@@ -3,6 +3,7 @@ package com.amee.messaging.resource;
 import com.amee.base.resource.RequestWrapper;
 import com.amee.base.resource.ResourceBuilder;
 import com.amee.messaging.MessageService;
+import com.amee.messaging.TimeoutRpcClient;
 import com.amee.messaging.config.ExchangeConfig;
 import com.rabbitmq.client.RpcClient;
 import org.jdom.Document;
@@ -33,7 +34,7 @@ public class RemoteDOMBuilder implements ResourceBuilder {
         Document document = null;
         try {
             requestWrapper.setTarget(getTarget());
-            RpcClient rpcClient = new RpcClient(
+            RpcClient rpcClient = new TimeoutRpcClient(
                     messageService.getChannel(exchangeConfig),
                     exchangeConfig.getName(),
                     exchangeConfig.getName());

@@ -3,6 +3,7 @@ package com.amee.messaging.resource;
 import com.amee.base.resource.RequestWrapper;
 import com.amee.base.resource.ResourceRemover;
 import com.amee.messaging.MessageService;
+import com.amee.messaging.TimeoutRpcClient;
 import com.amee.messaging.config.ExchangeConfig;
 import com.rabbitmq.client.RpcClient;
 import org.json.JSONException;
@@ -30,7 +31,7 @@ public class RemoteRemover implements ResourceRemover {
     public JSONObject handle(RequestWrapper requestWrapper) {
         try {
             requestWrapper.setTarget(getTarget());
-            RpcClient rpcClient = new RpcClient(
+            RpcClient rpcClient = new TimeoutRpcClient(
                     messageService.getChannel(exchangeConfig),
                     exchangeConfig.getName(),
                     exchangeConfig.getName());
