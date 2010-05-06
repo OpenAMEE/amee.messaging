@@ -3,12 +3,14 @@ package com.amee.messaging.resource;
 import com.amee.base.domain.VersionBeanFinder;
 import com.amee.base.resource.RequestWrapper;
 import com.amee.base.resource.ResourceHandler;
+import com.amee.base.validation.ValidationException;
 import com.amee.messaging.RpcMessageConsumer;
 import com.amee.messaging.config.ExchangeConfig;
 import com.amee.messaging.config.QueueConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.Document;
+import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,17 +61,38 @@ public class RequestWrapperMessageConsumer extends RpcMessageConsumer {
         }
     }
 
+    /**
+     * TODO: Make this content / accept type sensitive.
+     *
+     * @param requestWrapper which encapsulates the request
+     * @param handler        which will handle the requestWrapper
+     * @return the result serialized as a String
+     */
     protected String handle(RequestWrapper requestWrapper, ResourceHandler handler) {
-        Object result = handler.handle(requestWrapper);
-        // Handle result object.
-        if (JSONObject.class.isAssignableFrom(result.getClass())) {
-            return result.toString();
-        } else if (Document.class.isAssignableFrom(result.getClass())) {
-            return XML_OUTPUTTER.outputString((Document) result);
-        } else {
-            // Result object Class not supported
-            log.warn("handle() Result object Class not supported: " + result.getClass().getName());
-            return "{\"error\": \"Result object Class not supported.\"}";
+        try {
+            Object result = null;
+            // Handle the requestWrapper, and deal with any validation exceptions.
+            try {
+                result = handler.handle(requestWrapper);
+            } catch (ValidationException e) {
+                result = e.getJSONObject();
+            }
+            // Handle the result object.
+            if (JSONObject.class.isAssignableFrom(result.getClass())) {
+                JSONObject o = (JSONObject) result;
+                o.put("version", requestWrapper.getVersion().toString());
+                return result.toString();
+            } else if (Document.class.isAssignableFrom(result.getClass())) {
+                Document doc = (Document) result;
+                doc.getRootElement().addContent(new Element("Version").setText(requestWrapper.getVersion().toString()));
+                return XML_OUTPUTTER.outputString(doc);
+            } else {
+                // Result object Class not supported
+                log.warn("handle() Result object Class not supported: " + result.getClass().getName());
+                return "{\"error\": \"Result object Class not supported.\"}";
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException("Caught JSONException: " + e.getMessage(), e);
         }
     }
 
