@@ -76,6 +76,9 @@ public class RequestWrapperMessageConsumer extends RpcMessageConsumer {
                 result = handler.handle(requestWrapper);
             } catch (ValidationException e) {
                 result = e.getJSONObject();
+            } catch (Exception e) {
+                log.error("handle() Caught Exception: " + e.getMessage(), e);
+                result = new JSONObject().put("error", "Internal error.");
             }
             // Handle the result object.
             if (JSONObject.class.isAssignableFrom(result.getClass())) {
@@ -92,7 +95,7 @@ public class RequestWrapperMessageConsumer extends RpcMessageConsumer {
                 return "{\"error\": \"Result object Class not supported.\"}";
             }
         } catch (JSONException e) {
-            throw new RuntimeException("Caught JSONException: " + e.getMessage(), e);
+            return "{\"error\": \"Internal error.\"}";
         }
     }
 
