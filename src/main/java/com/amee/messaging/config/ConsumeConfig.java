@@ -8,6 +8,7 @@ public class ConsumeConfig implements Serializable {
     private String consumerTag = "";
     private boolean noLocal = false;
     private boolean exclusive = false;
+    private String scope = "live";
 
     public ConsumeConfig() {
         super();
@@ -43,5 +44,13 @@ public class ConsumeConfig implements Serializable {
 
     public void setExclusive(boolean exclusive) {
         this.exclusive = exclusive;
+    }
+
+    public String getScope() {
+        return scope;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
     }
 }

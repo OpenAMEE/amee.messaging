@@ -10,6 +10,7 @@ public class PublishConfig implements Serializable {
     private boolean mandatory = false;
     private boolean immediate = false;
     private AMQP.BasicProperties properties = MessageProperties.PERSISTENT_TEXT_PLAIN;
+    private String scope = "live";
 
     public PublishConfig() {
         super();
@@ -37,5 +38,13 @@ public class PublishConfig implements Serializable {
 
     public void setProperties(AMQP.BasicProperties properties) {
         this.properties = properties;
+    }
+
+    public String getScope() {
+        return scope;
+    }
+
+    public void setScope(String scope) {
+        this.scope = scope;
     }
 }
