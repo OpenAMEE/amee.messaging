@@ -24,6 +24,7 @@ public class TimeoutRpcClient extends RpcClient {
     private final Log log = LogFactory.getLog(getClass());
 
     private int timeout = 30;
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
 
     public TimeoutRpcClient(Channel channel, String exchange, String routingKey) throws IOException {
         super(channel, exchange, routingKey);
@@ -38,16 +39,15 @@ public class TimeoutRpcClient extends RpcClient {
     public byte[] primitiveCall(final AMQP.BasicProperties props, final byte[] message)
             throws IOException, ShutdownSignalException {
         byte[] result = new byte[0];
-        ExecutorService executor = Executors.newCachedThreadPool();
-        Callable<Object> task = new Callable<Object>() {
-            public Object call() throws IOException, ShutdownSignalException {
+        Callable<byte[]> task = new Callable<byte[]>() {
+            public byte[] call() throws IOException, ShutdownSignalException {
                 return wrappedPrimitiveCall(props, message);
             }
         };
         log.debug("primitiveCall() Submitting the task.");
-        Future<Object> future = executor.submit(task);
+        Future<byte[]> future = executor.submit(task);
         try {
-            result = (byte[]) future.get(getTimeout(), TimeUnit.SECONDS);
+            result = future.get(getTimeout(), TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             log.warn("primitiveCall() Caught TimeoutException (aborting).");
             getChannel().abort();
