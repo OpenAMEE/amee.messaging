@@ -1,6 +1,7 @@
 package com.amee.messaging.resource;
 
 import com.amee.base.domain.VersionBeanFinder;
+import com.amee.base.resource.NotFoundException;
 import com.amee.base.resource.RequestWrapper;
 import com.amee.base.resource.ResourceHandler;
 import com.amee.base.validation.ValidationException;
@@ -75,6 +76,8 @@ public class RequestWrapperMessageConsumer extends RpcMessageConsumer {
             try {
                 result = handler.handle(requestWrapper);
             } catch (ValidationException e) {
+                result = e.getJSONObject();
+            } catch (NotFoundException e) {
                 result = e.getJSONObject();
             } catch (Exception e) {
                 log.error("handle() Caught Exception: " + e.getMessage(), e);
