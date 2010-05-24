@@ -68,6 +68,10 @@ public abstract class MessageConsumer implements Runnable, ApplicationContextAwa
                 log.info("run() Interrupted.");
                 closeAndClear();
                 return;
+            } catch (Exception e) {
+                log.error("run() Caught Exception: " + e.getMessage(), e);
+            } catch (Throwable t) {
+                log.error("run() Caught Throwable: " + t.getMessage(), t);
             }
         }
     }

@@ -82,6 +82,9 @@ public class RequestWrapperMessageConsumer extends RpcMessageConsumer {
             } catch (Exception e) {
                 log.error("handle() Caught Exception: " + e.getMessage(), e);
                 result = new JSONObject().put("error", "Internal error.");
+            } catch (Throwable t) {
+                log.error("handle() Caught Throwable: " + t.getMessage(), t);
+                result = new JSONObject().put("error", "Internal error.");
             }
             // Handle the result object.
             if (JSONObject.class.isAssignableFrom(result.getClass())) {
