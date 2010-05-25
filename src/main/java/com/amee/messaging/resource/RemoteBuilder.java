@@ -1,10 +1,10 @@
 package com.amee.messaging.resource;
 
-import com.amee.base.resource.ResourceAcceptor;
+import com.amee.base.resource.ResourceBuilder;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 @Service
 @Scope("prototype")
-public class RemoteFormAcceptor extends RemoteResource implements ResourceAcceptor {
+public class RemoteBuilder extends RemoteResource implements ResourceBuilder {
 }

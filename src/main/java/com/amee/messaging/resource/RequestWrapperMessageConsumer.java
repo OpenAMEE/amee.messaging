@@ -5,7 +5,7 @@ import com.amee.base.resource.NotFoundException;
 import com.amee.base.resource.RequestWrapper;
 import com.amee.base.resource.ResourceHandler;
 import com.amee.base.validation.ValidationException;
-import com.amee.messaging.RpcMessageConsumer;
+import com.amee.messaging.MapRpcMessageConsumer;
 import com.amee.messaging.config.ExchangeConfig;
 import com.amee.messaging.config.QueueConfig;
 import org.apache.commons.logging.Log;
@@ -18,7 +18,10 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-public class RequestWrapperMessageConsumer extends RpcMessageConsumer {
+import java.util.HashMap;
+import java.util.Map;
+
+public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
 
     private final Log log = LogFactory.getLog(getClass());
 
@@ -35,10 +38,10 @@ public class RequestWrapperMessageConsumer extends RpcMessageConsumer {
     @Qualifier("requestWrapperQueue")
     private QueueConfig queueConfig;
 
-    protected String handle(String message) {
+    protected Map<String, Object> handle(Map<String, Object> message) {
         try {
             // Obtain RequestWrapper.
-            RequestWrapper requestWrapper = new RequestWrapper(new JSONObject(message));
+            RequestWrapper requestWrapper = new RequestWrapper(new JSONObject(message.get("requestWrapper").toString()));
             Object target = versionBeanFinder.getBeanForVersion(requestWrapper.getTarget(), requestWrapper.getVersion());
             // Lookup target bean.
             if (target != null) {
@@ -48,61 +51,83 @@ public class RequestWrapperMessageConsumer extends RpcMessageConsumer {
                     return handle(requestWrapper, (ResourceHandler) target);
                 } else {
                     // Target bean type not supported.
-                    log.warn("handle() Target bean type not supported: " + target.getClass());
-                    return "{\"error\": \"Could not find target.\"}";
+                    log.error("handle() Target bean type not supported: " + target.getClass());
+                    return error(requestWrapper, "Could not find target.");
                 }
             } else {
                 // Target bean not found.
-                log.warn("handle() Target bean not found:  " + requestWrapper.getTarget());
-                return "{\"error\": \"Could not find target.\"}";
+                log.error("handle() Target bean not found:  " + requestWrapper.getTarget());
+                return error(requestWrapper, "Could not find target.");
             }
         } catch (JSONException e) {
-            log.warn("handle() Caught JSONException: " + e.getMessage());
-            return "{\"error\": \"Could not parse JSON.\"}";
+            log.error("handle() Caught JSONException: " + e.getMessage());
+            return error(null, "Could not parse RequestWrapper");
         }
     }
 
     /**
-     * TODO: Make this content / accept type sensitive.
-     *
      * @param requestWrapper which encapsulates the request
      * @param handler        which will handle the requestWrapper
      * @return the result serialized as a String
      */
-    protected String handle(RequestWrapper requestWrapper, ResourceHandler handler) {
+    protected Map<String, Object> handle(RequestWrapper requestWrapper, ResourceHandler handler) {
         try {
-            Object result = null;
+            Object response;
             // Handle the requestWrapper, and deal with any validation exceptions.
             try {
-                result = handler.handle(requestWrapper);
+                response = handler.handle(requestWrapper);
             } catch (ValidationException e) {
-                result = e.getJSONObject();
+                // TODO: Support XML too.
+                response = e.getJSONObject();
             } catch (NotFoundException e) {
-                result = e.getJSONObject();
+                // TODO: Support XML too.
+                response = e.getJSONObject();
             } catch (Exception e) {
                 log.error("handle() Caught Exception: " + e.getMessage(), e);
-                result = new JSONObject().put("error", "Internal error.");
+                return error(requestWrapper, "Internal error");
             } catch (Throwable t) {
                 log.error("handle() Caught Throwable: " + t.getMessage(), t);
-                result = new JSONObject().put("error", "Internal error.");
+                return error(requestWrapper, "Internal error");
             }
             // Handle the result object.
-            if (JSONObject.class.isAssignableFrom(result.getClass())) {
-                JSONObject o = (JSONObject) result;
+            if (JSONObject.class.isAssignableFrom(response.getClass())) {
+                // JSON.
+                JSONObject o = (JSONObject) response;
                 o.put("version", requestWrapper.getVersion().toString());
-                return result.toString();
-            } else if (Document.class.isAssignableFrom(result.getClass())) {
-                Document doc = (Document) result;
+                Map<String, Object> result = new HashMap<String, Object>();
+                result.put("mediaType", "application/json");
+                result.put("response", response.toString());
+                return result;
+            } else if (Document.class.isAssignableFrom(response.getClass())) {
+                // XML.
+                Document doc = (Document) response;
                 doc.getRootElement().addContent(new Element("Version").setText(requestWrapper.getVersion().toString()));
-                return XML_OUTPUTTER.outputString(doc);
+                Map<String, Object> result = new HashMap<String, Object>();
+                result.put("mediaType", "application/xml");
+                result.put("response", XML_OUTPUTTER.outputString(doc));
+                return result;
             } else {
                 // Result object Class not supported
-                log.warn("handle() Result object Class not supported: " + result.getClass().getName());
-                return "{\"error\": \"Result object Class not supported.\"}";
+                log.warn("handle() Result object Class not supported: " + response.getClass().getName());
+                return error(requestWrapper, "Result object Class not supported.");
             }
         } catch (JSONException e) {
-            return "{\"error\": \"Internal error.\"}";
+            return error(requestWrapper, "Internal error");
         }
+    }
+
+    /**
+     * TODO: Make this media type sensitive.
+     *
+     * @param requestWrapper
+     * @param message
+     * @return
+     */
+    protected Map<String, Object> error(RequestWrapper requestWrapper, String message) {
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("response", "{\"status\": \"ERROR\"}, {\"error\": \"" + message + "\"}");
+        result.put("mediaType", "application/json");
+        return result;
     }
 
     @Override
