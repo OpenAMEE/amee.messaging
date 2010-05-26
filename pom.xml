@@ -5,7 +5,7 @@
     <name>amee-messaging</name>
     <groupId>com.amee</groupId>
     <artifactId>amee-messaging</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <!-- Properties. -->
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.amee</groupId>
             <artifactId>amee-base</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2-SNAPSHOT</version>
         </dependency>
 
         <!-- Compile Dependencies. -->
