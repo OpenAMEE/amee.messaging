@@ -12,7 +12,7 @@
     <properties>
         <!-- Versions. -->
         <!-- Note: These versions were last checked & upgraded on 15/04/2010. -->
-        <amee-base.version>1.0.1-SNAPSHOT</amee-base.version>
+        <amee-base.version>1.0.1</amee-base.version>
         <commons-io.version>1.4</commons-io.version>
         <rabbitmq.version>1.7.2</rabbitmq.version>
         <spring.version>3.0.2.RELEASE</spring.version>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.amee</groupId>
             <artifactId>amee-base</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>${amee-base.version}</version>
         </dependency>
 
         <!-- Compile Dependencies. -->
