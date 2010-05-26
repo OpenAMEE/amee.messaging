@@ -61,9 +61,11 @@ public abstract class MessageConsumer implements Runnable, ApplicationContextAwa
                 // We got here if there is no channel or this was stopped.
                 log.debug("run() No channel or stopped.");
             } catch (IOException e) {
-                log.warn("run() Caught IOException. We'll try restarting the consumer. Message was: " + e.getMessage());
+                log.warn("run() Caught IOException. We'll try restarting the consumer. Message was: " +
+                        ((e.getCause() != null) ? e.getCause().getMessage() : e.getMessage()));
             } catch (ShutdownSignalException e) {
-                log.warn("run() Caught ShutdownSignalException. We'll try restarting the consumer. Message was: " + e.getMessage());
+                log.warn("run() Caught ShutdownSignalException. We'll try restarting the consumer. Message was: " +
+                        e.getMessage());
             } catch (InterruptedException e) {
                 log.info("run() Interrupted.");
                 closeAndClear();
