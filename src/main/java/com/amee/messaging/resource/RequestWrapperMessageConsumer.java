@@ -4,6 +4,9 @@ import com.amee.base.domain.VersionBeanFinder;
 import com.amee.base.resource.NotFoundException;
 import com.amee.base.resource.RequestWrapper;
 import com.amee.base.resource.ResourceHandler;
+import com.amee.base.transaction.TransactionEvent;
+import com.amee.base.transaction.TransactionEventType;
+import com.amee.base.utils.ThreadBeanHolder;
 import com.amee.base.validation.ValidationException;
 import com.amee.messaging.MapRpcMessageConsumer;
 import com.amee.messaging.config.ExchangeConfig;
@@ -75,6 +78,9 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
             Object response;
             // Handle the requestWrapper, and deal with any validation exceptions.
             try {
+                // Callback hook.
+                onBeforeBegin();
+                // Do the work.
                 response = handler.handle(requestWrapper);
             } catch (ValidationException e) {
                 // TODO: Support XML too.
@@ -88,6 +94,9 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
             } catch (Throwable t) {
                 log.error("handle() Caught Throwable: " + t.getMessage(), t);
                 return error(requestWrapper, "Internal error");
+            } finally {
+                // Callback hook.
+                onEnd();
             }
             // Handle the result object.
             if (JSONObject.class.isAssignableFrom(response.getClass())) {
@@ -114,6 +123,20 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
         } catch (JSONException e) {
             return error(requestWrapper, "Internal error");
         }
+    }
+
+    public void onBeforeBegin() {
+        // Ensure threads are clear.
+        ThreadBeanHolder.clear();
+        // Publish BEFORE_BEGIN event.
+        applicationContext.publishEvent(new TransactionEvent(this, TransactionEventType.BEFORE_BEGIN));
+    }
+
+    public void onEnd() {
+        // Publish END event.
+        applicationContext.publishEvent(new TransactionEvent(this, TransactionEventType.END));
+        // Ensure threads are clear.
+        ThreadBeanHolder.clear();
     }
 
     /**
