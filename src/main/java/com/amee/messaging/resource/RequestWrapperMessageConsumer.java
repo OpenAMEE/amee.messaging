@@ -1,13 +1,13 @@
 package com.amee.messaging.resource;
 
 import com.amee.base.domain.VersionBeanFinder;
-import com.amee.base.resource.NotFoundException;
 import com.amee.base.resource.RequestWrapper;
+import com.amee.base.resource.ResourceException;
 import com.amee.base.resource.ResourceHandler;
+import com.amee.base.resource.TimedOutException;
 import com.amee.base.transaction.TransactionEvent;
 import com.amee.base.transaction.TransactionEventType;
 import com.amee.base.utils.ThreadBeanHolder;
-import com.amee.base.validation.ValidationException;
 import com.amee.messaging.MapRpcMessageConsumer;
 import com.amee.messaging.config.ExchangeConfig;
 import com.amee.messaging.config.QueueConfig;
@@ -23,12 +23,21 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
 
     private final Log log = LogFactory.getLog(getClass());
 
     private final static XMLOutputter XML_OUTPUTTER = new XMLOutputter();
+
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
 
     @Autowired
     private VersionBeanFinder versionBeanFinder;
@@ -40,6 +49,8 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
     @Autowired
     @Qualifier("requestWrapperQueue")
     private QueueConfig queueConfig;
+
+    private int timeout = 25;
 
     protected Map<String, Object> handle(Map<String, Object> message) {
         try {
@@ -81,48 +92,81 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
                 // Callback hook.
                 onBeforeBegin();
                 // Do the work.
-                response = handler.handle(requestWrapper);
-            } catch (ValidationException e) {
-                // TODO: Support XML too.
-                response = e.getJSONObject();
-            } catch (NotFoundException e) {
-                // TODO: Support XML too.
-                response = e.getJSONObject();
+                response = handleWithTimeout(requestWrapper, handler);
+            } catch (ResourceException e) {
+                response = e.getResponse(requestWrapper);
             } catch (Exception e) {
+                // A catch-all to prevent the thread from dying.
                 log.error("handle() Caught Exception: " + e.getMessage(), e);
-                return error(requestWrapper, "Internal error");
+                return error(requestWrapper, "Internal error.");
             } catch (Throwable t) {
+                // A catch-all to prevent the thread from dying.
                 log.error("handle() Caught Throwable: " + t.getMessage(), t);
-                return error(requestWrapper, "Internal error");
+                return error(requestWrapper, "Internal error.");
             } finally {
                 // Callback hook.
                 onEnd();
             }
-            // Handle the result object.
-            if (JSONObject.class.isAssignableFrom(response.getClass())) {
-                // JSON.
-                JSONObject o = (JSONObject) response;
-                o.put("version", requestWrapper.getVersion().toString());
-                Map<String, Object> result = new HashMap<String, Object>();
-                result.put("mediaType", "application/json");
-                result.put("response", response.toString());
-                return result;
-            } else if (Document.class.isAssignableFrom(response.getClass())) {
-                // XML.
-                Document doc = (Document) response;
-                doc.getRootElement().addContent(new Element("Version").setText(requestWrapper.getVersion().toString()));
-                Map<String, Object> result = new HashMap<String, Object>();
-                result.put("mediaType", "application/xml");
-                result.put("response", XML_OUTPUTTER.outputString(doc));
-                return result;
+            // Response should not be null.
+            if (response != null) {
+                // Handle the response object.
+                if (JSONObject.class.isAssignableFrom(response.getClass())) {
+                    // JSON.
+                    JSONObject o = (JSONObject) response;
+                    o.put("version", requestWrapper.getVersion().toString());
+                    Map<String, Object> result = new HashMap<String, Object>();
+                    result.put("mediaType", "application/json");
+                    result.put("response", response.toString());
+                    return result;
+                } else if (Document.class.isAssignableFrom(response.getClass())) {
+                    // XML.
+                    Document doc = (Document) response;
+                    doc.getRootElement().addContent(new Element("Version").setText(requestWrapper.getVersion().toString()));
+                    Map<String, Object> result = new HashMap<String, Object>();
+                    result.put("mediaType", "application/xml");
+                    result.put("response", XML_OUTPUTTER.outputString(doc));
+                    return result;
+                } else {
+                    // Response object class not supported
+                    log.error("handle() Response object class not supported: " + response.getClass().getName());
+                    return error(requestWrapper, "Internal error.");
+                }
             } else {
-                // Result object Class not supported
-                log.warn("handle() Result object Class not supported: " + response.getClass().getName());
-                return error(requestWrapper, "Result object Class not supported.");
+                // Response object was null.
+                log.error("handle() Response object was null.");
+                return error(requestWrapper, "Internal error.");
             }
         } catch (JSONException e) {
-            return error(requestWrapper, "Internal error");
+            // This is unlikely to happen.
+            log.error("handle() Caught JSONException: " + e.getMessage(), e);
+            return error(requestWrapper, "Internal error.");
         }
+    }
+
+    protected Object handleWithTimeout(final RequestWrapper requestWrapper, final ResourceHandler handler) throws Throwable {
+        Object response = null;
+        Callable<Object> task = new Callable<Object>() {
+            public Object call() throws Exception {
+                return handler.handle(requestWrapper);
+            }
+        };
+        log.debug("handleWithTimeout() Submitting the task.");
+        Future<Object> future = executor.submit(task);
+        try {
+            response = future.get(getTimeout(), TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            log.warn("handleWithTimeout() Caught TimeoutException (aborting).");
+            throw new TimedOutException();
+        } catch (InterruptedException e) {
+            log.error("handleWithTimeout() Caught InterruptedException (aborting): " + e.getMessage(), e);
+        } catch (ExecutionException e) {
+            log.debug("handleWithTimeout() Caught ExecutionException: " + e.getMessage());
+            throw e.getCause();
+        } finally {
+            log.debug("handleWithTimeout() Canceling the task via its Future.");
+            future.cancel(true);
+        }
+        return response;
     }
 
     public void onBeforeBegin() {
@@ -140,16 +184,35 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
     }
 
     /**
-     * TODO: Make this media type sensitive.
+     * Constructs an error response. Will return application/json if this is requested, otherwise
+     * application/xml.
      *
-     * @param requestWrapper
-     * @param message
-     * @return
+     * @param requestWrapper current RequestWrapper
+     * @param message        error message to include in response.
+     * @return Error response
      */
     protected Map<String, Object> error(RequestWrapper requestWrapper, String message) {
         Map<String, Object> result = new HashMap<String, Object>();
-        result.put("response", "{\"status\": \"ERROR\"}, {\"error\": \"" + message + "\"}");
-        result.put("mediaType", "application/json");
+        if (requestWrapper.getAcceptedMediaTypes().contains("application/json")) {
+            try {
+                JSONObject o = new JSONObject();
+                o.put("status", "ERROR");
+                o.put("error", message);
+                o.put("version", requestWrapper.getVersion().toString());
+                result.put("response", o.toString());
+                result.put("mediaType", "application/json");
+            } catch (JSONException e) {
+                // This should really never ever happen.
+                throw new RuntimeException("Caught JSONException: " + e.getMessage(), e);
+            }
+        } else {
+            Element rootElem = new Element("Representation");
+            rootElem.addContent(new Element("Status").setText("ERROR"));
+            rootElem.addContent(new Element("Error").setText(message));
+            rootElem.addContent(new Element("Version").setText(requestWrapper.getVersion().toString()));
+            result.put("response", XML_OUTPUTTER.outputString(new Document(rootElem)));
+            result.put("mediaType", "application/xml");
+        }
         return result;
     }
 
@@ -166,5 +229,13 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
     @Override
     public String getBindingKey() {
         return getQueueConfig().getName();
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 }

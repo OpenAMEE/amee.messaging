@@ -17,14 +17,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * A subclass of RpcClient that wraps primitiveCall such that a timeout is taken into the account.
+ * A subclass of RpcClient that wraps primitiveCall such that a timeout is applied.
  */
 public class TimeoutRpcClient extends RpcClient {
 
     private final Log log = LogFactory.getLog(getClass());
 
-    private int timeout = 30;
     private static final ExecutorService executor = Executors.newCachedThreadPool();
+
+    private int timeout = 30;
 
     public TimeoutRpcClient(Channel channel, String exchange, String routingKey) throws IOException {
         super(channel, exchange, routingKey);

@@ -6,6 +6,8 @@ import com.amee.messaging.MessageService;
 import com.amee.messaging.TimeoutRpcClient;
 import com.amee.messaging.config.ExchangeConfig;
 import com.rabbitmq.client.RpcClient;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.json.JSONException;
@@ -20,6 +22,8 @@ import java.util.Map;
 
 public class RemoteResource implements ResourceHandler {
 
+    private final Log log = LogFactory.getLog(getClass());
+
     @Autowired
     private MessageService messageService;
 
@@ -30,6 +34,7 @@ public class RemoteResource implements ResourceHandler {
     private String target;
 
     public Object handle(RequestWrapper requestWrapper) {
+        Object result = null;
         try {
             // Remote end requires a named target.
             requestWrapper.setTarget(getTarget());
@@ -49,28 +54,28 @@ public class RemoteResource implements ResourceHandler {
             if ((mediaType != null) && (response != null)) {
                 if (mediaType.endsWith("application/json")) {
                     try {
-                        return new JSONObject(response);
+                        result = new JSONObject(response);
                     } catch (JSONException e) {
-                        // TODO.
+                        throw new RuntimeException("Caught JSONException: " + e.getMessage(), e);
                     }
                 } else if (mediaType.endsWith("application/xml")) {
                     try {
                         StringReader reader = new StringReader(response);
                         SAXBuilder saxBuilder = new SAXBuilder();
-                        return saxBuilder.build(reader);
+                        result = saxBuilder.build(reader);
                     } catch (JDOMException e) {
-                        // TODO.
+                        throw new RuntimeException("Caught JDOMException: " + e.getMessage(), e);
                     }
                 } else {
-                    // TODO.
+                    log.error("accept() Response media type is not supported.");
                 }
             } else {
-                // TODO.
+                log.error("accept() Response or media type was null.");
             }
         } catch (IOException e) {
-            // TODO.
+            log.error("accept() Caught IOException: " + e.getMessage());
         }
-        return null;
+        return result;
     }
 
     public String getTarget() {
