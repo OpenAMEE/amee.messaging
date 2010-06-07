@@ -164,7 +164,9 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
             throw e.getCause();
         } finally {
             log.debug("handleWithTimeout() Canceling the task via its Future.");
-            future.cancel(true);
+            // TODO: One day we should switch this to true.
+            // TODO: This can be true if we trust all tasks to be killed cleanly.
+            future.cancel(false);
         }
         return response;
     }
