@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Identity. -->
@@ -10,9 +11,10 @@
 
     <!-- Properties. -->
     <properties>
-        <!-- Versions. -->
+        <!-- Internal Versions. -->
+        <amee-base.version>1.0.3-SNAPSHOT</amee-base.version>
+        <!-- External Versions. -->
         <!-- Note: These versions were last checked & upgraded on 15/04/2010. -->
-        <amee-base.version>1.0.2</amee-base.version>
         <commons-io.version>1.4</commons-io.version>
         <rabbitmq.version>1.7.2</rabbitmq.version>
         <spring.version>3.0.2.RELEASE</spring.version>
