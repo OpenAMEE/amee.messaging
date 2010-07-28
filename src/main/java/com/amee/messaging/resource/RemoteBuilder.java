@@ -6,5 +6,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Scope("prototype")
-public class RemoteBuilder extends RemoteResource implements ResourceBuilder {
+public class RemoteBuilder extends RemoteResourceHandler implements ResourceBuilder {
 }

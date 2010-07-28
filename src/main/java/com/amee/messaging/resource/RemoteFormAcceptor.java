@@ -6,5 +6,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Scope("prototype")
-public class RemoteFormAcceptor extends RemoteResource implements ResourceAcceptor {
+public class RemoteFormAcceptor extends RemoteResourceHandler implements ResourceAcceptor {
 }

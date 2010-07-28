@@ -54,10 +54,10 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
 
     protected Map<String, Object> handle(Map<String, Object> message) {
         try {
-            // Obtain RequestWrapper.
+            // Obtain RequestWrapper from incoming message.
             RequestWrapper requestWrapper = new RequestWrapper(new JSONObject(message.get("requestWrapper").toString()));
-            Object target = versionBeanFinder.getBeanForVersion(requestWrapper.getTarget(), requestWrapper.getVersion());
             // Lookup target bean.
+            Object target = versionBeanFinder.getBeanForVersion(requestWrapper.getTarget(), requestWrapper.getVersion());
             if (target != null) {
                 // Target bean found, send request there and get result object.
                 // Only ResourceHandler derived implementations are supported.

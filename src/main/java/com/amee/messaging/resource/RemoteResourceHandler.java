@@ -20,7 +20,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RemoteResource implements ResourceHandler {
+public class RemoteResourceHandler implements ResourceHandler {
 
     private final Log log = LogFactory.getLog(getClass());
 
