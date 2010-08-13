@@ -37,9 +37,9 @@ public class RemoteRemover implements ResourceRemover {
                     exchangeConfig.getName());
             return new JSONObject(rpcClient.stringCall(requestWrapper.toJSONObject().toString()));
         } catch (IOException e) {
-            throw new RuntimeException("Caught IOException: " + e.getMessage());
+            throw new RuntimeException("Caught IOException: " + e.getMessage(), e);
         } catch (JSONException e) {
-            throw new RuntimeException("Caught JSONException: " + e.getMessage());
+            throw new RuntimeException("Caught JSONException: " + e.getMessage(), e);
         }
     }
 
