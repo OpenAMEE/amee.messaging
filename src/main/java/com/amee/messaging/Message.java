@@ -4,7 +4,7 @@ import org.springframework.context.ApplicationEvent;
 
 public abstract class Message extends ApplicationEvent {
 
-    private boolean local = false;
+    private boolean local;
 
     public Message(Object source) {
         super(source);
@@ -13,6 +13,7 @@ public abstract class Message extends ApplicationEvent {
 
     public Message(Object source, String message) {
         super(source);
+        setLocal(false);
         setMessage(message);
     }
 
