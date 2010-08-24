@@ -11,7 +11,7 @@
     <!-- Properties. -->
     <properties>
         <!-- Internal Versions. -->
-        <amee-base.version>1.0.4-SNAPSHOT</amee-base.version>
+        <amee-base.version>1.0.4</amee-base.version>
         <!-- External Versions. -->
         <!-- Note: These versions were last checked & upgraded on 15/04/2010. -->
         <commons-io.version>1.4</commons-io.version>
