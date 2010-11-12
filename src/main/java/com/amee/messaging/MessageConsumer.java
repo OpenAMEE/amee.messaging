@@ -10,12 +10,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.SmartLifecycle;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.IOException;
 
-public abstract class MessageConsumer implements Runnable, ApplicationContextAware {
+public abstract class MessageConsumer implements Runnable, SmartLifecycle, ApplicationContextAware {
 
     private final Log log = LogFactory.getLog(getClass());
 
@@ -30,14 +29,14 @@ public abstract class MessageConsumer implements Runnable, ApplicationContextAwa
     protected boolean stopping = false;
     protected ApplicationContext applicationContext;
 
-    @PostConstruct
+    @Override
     public synchronized void start() {
         log.info("start()");
         thread = new Thread(this);
         thread.start();
     }
 
-    @PreDestroy
+    @Override
     public synchronized void stop() {
         log.info("stop()");
         stopping = true;
@@ -47,6 +46,29 @@ public abstract class MessageConsumer implements Runnable, ApplicationContextAwa
         }
     }
 
+    @Override
+    public boolean isRunning() {
+        return (thread != null) && (thread.isAlive());
+    }
+
+    @Override
+    public boolean isAutoStartup() {
+        return true;
+    }
+
+    @Override
+    public void stop(Runnable callback) {
+        stop();
+        callback.run();
+    }
+
+    @Override
+    public int getPhase() {
+        // Start as late as possible.
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
     public void run() {
         log.info("run()");
         while (!Thread.currentThread().isInterrupted()) {
@@ -110,6 +132,7 @@ public abstract class MessageConsumer implements Runnable, ApplicationContextAwa
 
     public abstract String getBindingKey();
 
+    @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
