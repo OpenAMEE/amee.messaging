@@ -74,7 +74,7 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
                 return error(requestWrapper, "Could not find target.");
             }
         } catch (JSONException e) {
-            log.error("handle() Caught JSONException: " + e.getMessage());
+            log.error("handle() Caught JSONException: " + e.getMessage(), e);
             return error(null, "Could not parse RequestWrapper");
         }
     }

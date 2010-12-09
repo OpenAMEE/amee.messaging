@@ -73,7 +73,7 @@ public class RemoteResourceHandler implements ResourceHandler {
                 log.error("accept() Response or media type was null.");
             }
         } catch (IOException e) {
-            log.error("accept() Caught IOException: " + e.getMessage());
+            log.error("accept() Caught IOException: " + e.getMessage(), e);
         }
         return result;
     }
