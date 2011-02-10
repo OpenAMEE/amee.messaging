@@ -5,9 +5,6 @@ import com.amee.base.resource.RequestWrapper;
 import com.amee.base.resource.ResourceException;
 import com.amee.base.resource.ResourceHandler;
 import com.amee.base.resource.TimedOutException;
-import com.amee.base.transaction.TransactionEvent;
-import com.amee.base.transaction.TransactionEventType;
-import com.amee.base.utils.ThreadBeanHolder;
 import com.amee.messaging.MapRpcMessageConsumer;
 import com.amee.messaging.config.ExchangeConfig;
 import com.amee.messaging.config.QueueConfig;
@@ -23,13 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
 
@@ -89,8 +80,6 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
             Object response;
             // Handle the requestWrapper, and deal with any validation exceptions.
             try {
-                // Callback hook.
-                onBeforeBegin();
                 // Do the work.
                 response = handleWithTimeout(requestWrapper, handler);
             } catch (ResourceException e) {
@@ -103,9 +92,6 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
                 // A catch-all to prevent the thread from dying.
                 log.error("handle() Caught Throwable: " + t.getMessage(), t);
                 return error(requestWrapper, "Internal error.");
-            } finally {
-                // Callback hook.
-                onEnd();
             }
             // Response should not be null.
             if (response != null) {
@@ -143,6 +129,9 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
         }
     }
 
+    /**
+     * TODO: What happens to values in ThreadLocal?
+     */
     protected Object handleWithTimeout(final RequestWrapper requestWrapper, final ResourceHandler handler) throws Throwable {
         Object response = null;
         Callable<Object> task = new Callable<Object>() {
@@ -169,20 +158,6 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
             future.cancel(false);
         }
         return response;
-    }
-
-    public void onBeforeBegin() {
-        // Ensure threads are clear.
-        ThreadBeanHolder.clear();
-        // Publish BEFORE_BEGIN event.
-        applicationContext.publishEvent(new TransactionEvent(this, TransactionEventType.BEFORE_BEGIN));
-    }
-
-    public void onEnd() {
-        // Publish END event.
-        applicationContext.publishEvent(new TransactionEvent(this, TransactionEventType.END));
-        // Ensure threads are clear.
-        ThreadBeanHolder.clear();
     }
 
     /**
