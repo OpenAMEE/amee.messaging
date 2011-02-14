@@ -130,7 +130,7 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
     }
 
     /**
-     * TODO: What happens to values in ThreadLocal?
+     * TODO: Compare this to similar method in LocalResourceHandler before using.
      */
     protected Object handleWithTimeout(final RequestWrapper requestWrapper, final ResourceHandler handler) throws Throwable {
         Object response = null;
@@ -153,9 +153,7 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
             throw e.getCause();
         } finally {
             log.debug("handleWithTimeout() Canceling the task via its Future.");
-            // TODO: One day we should switch this to true.
-            // TODO: This can be true if we trust all tasks to be killed cleanly.
-            future.cancel(false);
+            future.cancel(true);
         }
         return response;
     }
