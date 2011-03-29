@@ -171,7 +171,7 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
         if (requestWrapper.getAcceptedMediaTypes().contains("application/json")) {
             try {
                 JSONObject o = new JSONObject();
-                o.put("status", "ERROR");
+                o.put("status", "INTERNAL_ERROR");
                 o.put("error", message);
                 o.put("version", requestWrapper.getVersion().toString());
                 result.put("response", o.toString());
@@ -182,7 +182,7 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
             }
         } else {
             Element rootElem = new Element("Representation");
-            rootElem.addContent(new Element("Status").setText("ERROR"));
+            rootElem.addContent(new Element("Status").setText("INTERNAL_ERROR"));
             rootElem.addContent(new Element("Error").setText(message));
             rootElem.addContent(new Element("Version").setText(requestWrapper.getVersion().toString()));
             result.put("response", XML_OUTPUTTER.outputString(new Document(rootElem)));
