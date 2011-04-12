@@ -3,13 +3,45 @@ package com.amee.messaging.config;
 import java.io.Serializable;
 import java.util.Map;
 
+/**
+ * A bean for configuring a RabbitMQ exchange.
+ * <p/>
+ * JavaDoc for the properties below is lifted directly from relevant RabbitMQ methods.
+ *
+ * @see /conf/applicationContext-messaging.xml
+ * @see com.amee.messaging.MessageService
+ * @see com.rabbitmq.client.Channel
+ */
 public class ExchangeConfig implements Serializable {
 
+    /**
+     * The name of the exchange.
+     */
     private String name = "platform";
+
+    /**
+     * The exchange type.
+     */
     private String type = "direct";
+
+    /**
+     * True if we are passively declaring a exchange (asserting the exchange already exists).
+     */
     private boolean passive = false;
+
+    /**
+     * True if we are declaring a durable exchange (the exchange will survive a server restart).
+     */
     private boolean durable = false;
+
+    /**
+     * True if the server should delete the exchange when it is no longer in use.
+     */
     private boolean autoDelete = false;
+
+    /**
+     * Other properties (construction arguments) for the exchange.
+     */
     private Map<String, Object> arguments = null;
 
     public ExchangeConfig() {
