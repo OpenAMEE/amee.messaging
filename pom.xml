@@ -10,13 +10,16 @@
 
     <!-- Properties. -->
     <properties>
+
         <!-- Internal Versions. -->
         <amee-base.version>1.0.7</amee-base.version>
+
         <!-- External Versions. -->
-        <!-- Note: These versions were last checked & upgraded on 15/04/2010. -->
-        <commons-io.version>1.4</commons-io.version>
+        <!-- Note: These versions were last checked & upgraded on 14/04/2011. -->
+        <commons-io.version>2.0.1</commons-io.version>
         <rabbitmq.version>1.7.2</rabbitmq.version>
         <spring.version>3.0.5.RELEASE</spring.version>
+
         <!-- Other. -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
