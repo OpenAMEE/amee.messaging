@@ -15,6 +15,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
+/**
+ * An implementation of {@link ResourceRemover} which will send the request to a remote ResourceRemover via
+ * RabbitMQ RPC.
+ *
+ * @see ResourceRemover
+ */
 @Service
 @Scope("prototype")
 public class RemoteRemover implements ResourceRemover {
@@ -26,8 +32,18 @@ public class RemoteRemover implements ResourceRemover {
     @Qualifier("requestWrapperExchange")
     private ExchangeConfig exchangeConfig;
 
+    /**
+     * The target bean in the remote instance which will handle the {@link RequestWrapper}.
+     */
     private String target;
 
+    /**
+     * Handle a request, embodied in a {@link RequestWrapper}, and return a representation object. This will
+     * send the RequestWrapper to a remote instance of ResourceRemover via RabbitMQ RPC.
+     *
+     * @param requestWrapper RequestWrapper for this request
+     * @return the output representation object
+     */
     public JSONObject handle(RequestWrapper requestWrapper) {
         try {
             requestWrapper.setTarget(getTarget());

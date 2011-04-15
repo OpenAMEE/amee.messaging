@@ -1,5 +1,8 @@
 package com.amee.messaging;
 
+/**
+ * A custom {@link RuntimeException} implementation for this messaging library.
+ */
 public class MessagingException extends RuntimeException {
 
     public MessagingException() {

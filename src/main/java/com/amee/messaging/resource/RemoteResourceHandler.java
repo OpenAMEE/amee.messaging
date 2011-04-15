@@ -20,6 +20,10 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * An implementation of {@link ResourceHandler} which will send the request to a remote ResourceHandler via
+ * RabbitMQ RPC.
+ */
 public class RemoteResourceHandler implements ResourceHandler {
 
     private final Log log = LogFactory.getLog(getClass());
@@ -31,8 +35,19 @@ public class RemoteResourceHandler implements ResourceHandler {
     @Qualifier("requestWrapperExchange")
     private ExchangeConfig exchangeConfig;
 
+    /**
+     * The target bean in the remote instance which will handle the {@link RequestWrapper}.
+     */
     private String target;
 
+    /**
+     * Handle a request, embodied in a {@link RequestWrapper}, and return a representation object. This implementation
+     * packages the RequestWrapper up in a RabbitMQ message and sends it to a remote implementation
+     * of {@link ResourceHandler}.
+     *
+     * @param requestWrapper RequestWrapper for this request
+     * @return the output representation object
+     */
     public Object handle(RequestWrapper requestWrapper) {
         Object result = null;
         try {

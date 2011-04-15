@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 
+/**
+ * A Spring service bean to manage RabbitMQ message sending, channels, exchanges, queues and connections.
+ */
 @Service
 public class MessageService {
 
@@ -26,6 +29,9 @@ public class MessageService {
 
     private Connection connection;
 
+    /**
+     * A callback method called when this bean is in the process of being removed by the Spring container.
+     */
     @PreDestroy
     public synchronized void stop() {
         log.info("stop()");
@@ -41,6 +47,14 @@ public class MessageService {
         }
     }
 
+    /**
+     * Publish a message using the supplied {@link ExchangeConfig}, {@link PublishConfig} and routing key.
+     *
+     * @param exchangeConfig configuration for the exchange publish message to
+     * @param publishConfig  general configuration for RabbitMQ messing publishing
+     * @param routingKey     the RabbitMQ routing key
+     * @param message        the message to publish
+     */
     public void publish(
             ExchangeConfig exchangeConfig,
             PublishConfig publishConfig,
@@ -75,6 +89,13 @@ public class MessageService {
         }
     }
 
+    /**
+     * Get a new RabbitMQ {@link Channel} for the supplied {@link ExchangeConfig}.
+     *
+     * @param exchangeConfig to base Channel on
+     * @return a new Channel
+     * @throws IOException thrown by RabbitMQ
+     */
     public Channel getChannel(ExchangeConfig exchangeConfig) throws IOException {
         log.debug("getChannel()");
         // Try to get a channel.
@@ -86,6 +107,16 @@ public class MessageService {
         return channel;
     }
 
+    /**
+     * Get a new RabbitMQ {@link Channel} for the supplied {@link ExchangeConfig} and {@link QueueConfig} and bind
+     * to a queue with the binding key. Will ensure an exchange and queue are declared.
+     *
+     * @param exchangeConfig to base Channel on
+     * @param queueConfig    to base Channel on
+     * @param bindingKey     the binding key
+     * @return a new Channel
+     * @throws IOException thrown by RabbitMQ
+     */
     public Channel getChannelAndBind(
             ExchangeConfig exchangeConfig,
             QueueConfig queueConfig,
@@ -102,6 +133,13 @@ public class MessageService {
         return channel;
     }
 
+    /**
+     * Declare a new RabbitMQ exchange based on the supplied {@link Channel} and {@link ExchangeConfig}.
+     *
+     * @param channel        to base exchange on
+     * @param exchangeConfig to base exchange on
+     * @throws IOException thrown by RabbitMQ
+     */
     public void exchangeDeclare(Channel channel, ExchangeConfig exchangeConfig) throws IOException {
         channel.exchangeDeclare(
                 exchangeConfig.getName(),
@@ -112,6 +150,13 @@ public class MessageService {
                 exchangeConfig.getArguments());
     }
 
+    /**
+     * Declare a new RabbitMQ queue based on the supplied {@link Channel} and {@link QueueConfig}.
+     *
+     * @param channel     to base queue on
+     * @param queueConfig to base queue on
+     * @throws IOException thrown by RabbitMQ
+     */
     public void queueDeclare(Channel channel, QueueConfig queueConfig) throws IOException {
         channel.queueDeclare(
                 queueConfig.getName(),
@@ -122,6 +167,16 @@ public class MessageService {
                 queueConfig.getArguments());
     }
 
+    /**
+     * Bind a queue to a channel based on the supplied {@link Channel} and {@link QueueConfig},
+     * {@link ExchangeConfig} and binding key.
+     *
+     * @param channel        to base queue on
+     * @param queueConfig    to base queue on
+     * @param exchangeConfig to base queue on
+     * @param bindingKey     binding key to use
+     * @throws IOException thrown by RabbitMQ
+     */
     public void queueBind(Channel channel, QueueConfig queueConfig, ExchangeConfig exchangeConfig, String bindingKey) throws IOException {
         channel.queueBind(
                 queueConfig.getName(),
@@ -130,6 +185,12 @@ public class MessageService {
                 null);
     }
 
+    /**
+     * Get a new {@link Channel} for the current {@link Connection}.
+     *
+     * @return a new {@link Channel}
+     * @throws IOException thrown by RabbitMQ
+     */
     public Channel getChannel() throws IOException {
         try {
             return getConnection().createChannel();
@@ -140,6 +201,13 @@ public class MessageService {
         }
     }
 
+    /**
+     * Get an existing or new RabbitMQ {@link Connection}. The addresses configured in the
+     * current {@link ConnectionConfig} instance are used.
+     *
+     * @return the existing or a new {@link Connection}
+     * @throws IOException thrown by RabbitMQ
+     */
     public Connection getConnection() throws IOException {
         if (connection == null) {
             synchronized (this) {
@@ -151,6 +219,11 @@ public class MessageService {
         return connection;
     }
 
+    /**
+     * Return a new {@link ConnectionFactory} based on the corrent {@link ConnectionParameters}.
+     *
+     * @return a new {@link ConnectionFactory}
+     */
     public ConnectionFactory getConnectionFactory() {
         return new ConnectionFactory(connectionParameters);
     }

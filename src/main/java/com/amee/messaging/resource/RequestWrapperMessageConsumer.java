@@ -22,13 +22,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
+/**
+ * A message consumer for {@link RequestWrapper}s allowing requests to be remoted to other application instances.
+ */
 public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
 
     private final Log log = LogFactory.getLog(getClass());
 
     private final static XMLOutputter XML_OUTPUTTER = new XMLOutputter();
 
-    private static final ExecutorService executor = Executors.newCachedThreadPool();
+    private final static ExecutorService executor = Executors.newCachedThreadPool();
 
     @Autowired
     private VersionBeanFinder versionBeanFinder;
@@ -43,6 +46,12 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
 
     private int timeout = 25;
 
+    /**
+     * Handle the Map form of the incoming RPC message.
+     *
+     * @param message in Map form
+     * @return message response in Map form
+     */
     protected Map<String, Object> handle(Map<String, Object> message) {
         try {
             // Obtain RequestWrapper from incoming message.
