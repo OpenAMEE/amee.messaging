@@ -12,7 +12,7 @@
     <properties>
 
         <!-- Internal Versions. -->
-        <amee-base.version>1.0.9</amee-base.version>
+        <amee-base.version>1.1.0-SNAPSHOT</amee-base.version>
 
         <!-- External Versions. -->
         <!-- Note: These versions were last checked & upgraded on 14/04/2011. -->
