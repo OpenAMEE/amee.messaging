@@ -27,7 +27,7 @@ public class MessageService {
     @Autowired
     private ConnectionParameters connectionParameters;
 
-    private Connection connection;
+    private volatile Connection connection;
 
     /**
      * A callback method called when this bean is in the process of being removed by the Spring container.
@@ -205,18 +205,22 @@ public class MessageService {
      * Get an existing or new RabbitMQ {@link Connection}. The addresses configured in the
      * current {@link ConnectionConfig} instance are used.
      *
+     * Uses double-check idiom.
+     *
      * @return the existing or a new {@link Connection}
      * @throws IOException thrown by RabbitMQ
      */
     public Connection getConnection() throws IOException {
-        if (connection == null) {
+        Connection result = connection;
+        if (result == null) {
             synchronized (this) {
-                if (connection == null) {
-                    connection = getConnectionFactory().newConnection(connectionConfig.getAddresses());
+                result = connection;
+                if (result == null) {
+                    connection = result = getConnectionFactory().newConnection(connectionConfig.getAddresses());
                 }
             }
         }
-        return connection;
+        return result;
     }
 
     /**
