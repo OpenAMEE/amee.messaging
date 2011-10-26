@@ -75,7 +75,7 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
             }
         } catch (JSONException e) {
             log.error("handle() Caught JSONException: " + e.getMessage(), e);
-            return error(null, "Could not parse RequestWrapper");
+            return error(new RequestWrapper(), "Could not parse RequestWrapper");
         }
     }
 
