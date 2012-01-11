@@ -5,14 +5,14 @@
     <name>amee-messaging</name>
     <groupId>com.amee</groupId>
     <artifactId>amee-messaging</artifactId>
-    <version>1.0.11-SNAPSHOT</version>
+    <version>1.0.12-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <!-- Properties. -->
     <properties>
 
         <!-- Internal Versions. -->
-        <amee-base.version>1.2.0-SNAPSHOT</amee-base.version>
+        <amee-base.version>1.1.2</amee-base.version>
 
         <!-- External Versions. -->
         <!-- Note: These versions were last checked & upgraded on 14/04/2011. -->
