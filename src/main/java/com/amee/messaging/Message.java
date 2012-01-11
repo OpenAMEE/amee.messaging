@@ -21,7 +21,7 @@ public abstract class Message extends ApplicationEvent {
      */
     public Message(Object source) {
         super(source);
-        setLocal(true);
+        this.local = true;
     }
 
     /**
@@ -32,7 +32,7 @@ public abstract class Message extends ApplicationEvent {
      */
     public Message(Object source, String message) {
         super(source);
-        setLocal(false);
+        this.local = false;
         setMessage(message);
     }
 
