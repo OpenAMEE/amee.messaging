@@ -27,6 +27,7 @@ public class MessageService {
     @Autowired
     private ConnectionParameters connectionParameters;
 
+    // Must be declared volatile for double-check locking.
     private volatile Connection connection;
 
     /**
@@ -211,6 +212,10 @@ public class MessageService {
      * @throws IOException thrown by RabbitMQ
      */
     public Connection getConnection() throws IOException {
+
+        // Note the usage of the local variable result which seems unnecessary.
+        // For some versions of the Java VM, it will make the code 25% faster and for others, it won't hurt.
+        // Joshua Bloch "Effective Java, Second Edition", p. 283
         Connection result = connection;
         if (result == null) {
             synchronized (this) {
