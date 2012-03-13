@@ -2,10 +2,11 @@ package com.amee.messaging;
 
 import com.amee.messaging.config.ConsumeConfig;
 import com.rabbitmq.client.QueueingConsumer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * An abstract implementation of {@link MessageConsumer} for RabbitMQ topics. Sub-classes are required to
@@ -22,6 +23,7 @@ public abstract class TopicMessageConsumer extends MessageConsumer {
      * @throws IOException          thrown by RabbitMQ
      * @throws InterruptedException thrown by RabbitMQ
      */
+    @Override
     protected void consume() throws IOException, InterruptedException {
         log.debug("consume()");
         // If we have a channel we're safe to configure the QueueingConsumer.
@@ -34,6 +36,7 @@ public abstract class TopicMessageConsumer extends MessageConsumer {
                     getConsumeConfig().getConsumerTag(),
                     getConsumeConfig().isNoLocal(),
                     getConsumeConfig().isExclusive(),
+                    null,
                     consumer);
             // Handle deliveries until stopped.
             while (!stopping) {

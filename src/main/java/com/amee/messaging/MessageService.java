@@ -4,14 +4,19 @@ import com.amee.messaging.config.ConnectionConfig;
 import com.amee.messaging.config.ExchangeConfig;
 import com.amee.messaging.config.PublishConfig;
 import com.amee.messaging.config.QueueConfig;
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.ShutdownSignalException;
+
+import java.io.IOException;
+
+import javax.annotation.PreDestroy;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PreDestroy;
-import java.io.IOException;
 
 /**
  * A Spring service bean to manage RabbitMQ message sending, channels, exchanges, queues and connections.
@@ -25,7 +30,7 @@ public class MessageService {
     private ConnectionConfig connectionConfig;
 
     @Autowired
-    private ConnectionParameters connectionParameters;
+    private ConnectionFactory connectionFactory;
 
     // Must be declared volatile for double-check locking.
     private volatile Connection connection;
@@ -161,7 +166,6 @@ public class MessageService {
     public void queueDeclare(Channel channel, QueueConfig queueConfig) throws IOException {
         channel.queueDeclare(
                 queueConfig.getName(),
-                queueConfig.isPassive(),
                 queueConfig.isDurable(),
                 queueConfig.isExclusive(),
                 queueConfig.isAutoDelete(),
@@ -229,11 +233,11 @@ public class MessageService {
     }
 
     /**
-     * Return a new {@link ConnectionFactory} based on the corrent {@link ConnectionParameters}.
+     * Get the autowired {@link ConnectionFactory}.
      *
-     * @return a new {@link ConnectionFactory}
+     * @return a {@link ConnectionFactory}
      */
     public ConnectionFactory getConnectionFactory() {
-        return new ConnectionFactory(connectionParameters);
+        return connectionFactory;
     }
 }

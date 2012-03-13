@@ -6,6 +6,13 @@ import com.amee.messaging.MessageService;
 import com.amee.messaging.TimeoutRpcClient;
 import com.amee.messaging.config.ExchangeConfig;
 import com.rabbitmq.client.RpcClient;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jdom.JDOMException;
@@ -14,11 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * An implementation of {@link ResourceHandler} which will send the request to a remote ResourceHandler via
@@ -44,10 +46,11 @@ public class RemoteResourceHandler implements ResourceHandler {
      * Handle a request, embodied in a {@link RequestWrapper}, and return a representation object. This implementation
      * packages the RequestWrapper up in a RabbitMQ message and sends it to a remote implementation
      * of {@link ResourceHandler}.
-     *
+     * 
      * @param requestWrapper RequestWrapper for this request
      * @return the output representation object
      */
+    @Override
     public Object handle(RequestWrapper requestWrapper) {
         Object result = null;
         try {
@@ -58,9 +61,9 @@ public class RemoteResourceHandler implements ResourceHandler {
             message.put("requestWrapper", requestWrapper.toJSONObject().toString());
             // Prepare the RpcClient.
             RpcClient rpcClient = new TimeoutRpcClient(
-                    messageService.getChannel(exchangeConfig),
-                    exchangeConfig.getName(),
-                    exchangeConfig.getName());
+                messageService.getChannel(exchangeConfig),
+                exchangeConfig.getName(),
+                exchangeConfig.getName());
             // Send the message and get the reply.
             Map<String, Object> reply = rpcClient.mapCall(message);
             // Handle the reply.
@@ -88,7 +91,9 @@ public class RemoteResourceHandler implements ResourceHandler {
                 log.error("accept() Response or media type was null.");
             }
         } catch (IOException e) {
-            log.error("accept() Caught IOException: " + e.getMessage(), e);
+            log.error("accept() caught IOException: " + e.getMessage(), e);
+        } catch (TimeoutException e) {
+            log.error("accept() caught TimeoutException: " + e.getMessage(), e);
         }
         return result;
     }

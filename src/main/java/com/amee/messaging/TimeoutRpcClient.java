@@ -4,11 +4,18 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.RpcClient;
 import com.rabbitmq.client.ShutdownSignalException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * A subclass of RpcClient that wraps primitiveCall such that a timeout is applied.
@@ -32,10 +39,11 @@ public class TimeoutRpcClient extends RpcClient {
 
     @Override
     public byte[] primitiveCall(final AMQP.BasicProperties props, final byte[] message)
-            throws IOException, ShutdownSignalException {
+            throws IOException, ShutdownSignalException, TimeoutException {
         byte[] result = new byte[0];
         Callable<byte[]> task = new Callable<byte[]>() {
-            public byte[] call() throws IOException, ShutdownSignalException {
+            @Override
+            public byte[] call() throws IOException, ShutdownSignalException, TimeoutException {
                 return wrappedPrimitiveCall(props, message);
             }
         };
@@ -60,7 +68,7 @@ public class TimeoutRpcClient extends RpcClient {
     }
 
     public byte[] wrappedPrimitiveCall(AMQP.BasicProperties props, byte[] message)
-            throws IOException, ShutdownSignalException {
+            throws IOException, ShutdownSignalException, TimeoutException {
         return super.primitiveCall(props, message);
     }
 

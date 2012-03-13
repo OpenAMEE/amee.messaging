@@ -17,7 +17,7 @@
         <!-- External Versions. -->
         <!-- Note: These versions were last checked & upgraded on 14/04/2011. -->
         <commons-io.version>2.0.1</commons-io.version>
-        <rabbitmq.version>1.7.2</rabbitmq.version>
+        <rabbitmq.version>2.7.1</rabbitmq.version>
         <spring.version>3.1.1.RELEASE</spring.version>
 
         <!-- Plugin versions -->
