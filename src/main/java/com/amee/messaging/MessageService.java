@@ -150,7 +150,6 @@ public class MessageService {
         channel.exchangeDeclare(
                 exchangeConfig.getName(),
                 exchangeConfig.getType(),
-                exchangeConfig.isPassive(),
                 exchangeConfig.isDurable(),
                 exchangeConfig.isAutoDelete(),
                 exchangeConfig.getArguments());
