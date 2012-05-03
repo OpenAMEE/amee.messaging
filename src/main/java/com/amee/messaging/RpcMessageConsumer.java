@@ -1,8 +1,8 @@
 package com.amee.messaging;
 
 import com.rabbitmq.client.RpcServer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public abstract class RpcMessageConsumer extends MessageConsumer {
 
-    private final Log log = LogFactory.getLog(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Consume messages from the queue with the {@link RpcServer}.
