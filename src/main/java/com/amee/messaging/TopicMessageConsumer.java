@@ -5,8 +5,8 @@ import com.rabbitmq.client.QueueingConsumer;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An abstract implementation of {@link MessageConsumer} for RabbitMQ topics. Sub-classes are required to
@@ -14,7 +14,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class TopicMessageConsumer extends MessageConsumer {
 
-    private final Log log = LogFactory.getLog(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Starts a topic consumption loop which will finish when the application ends or an unhandled exception is

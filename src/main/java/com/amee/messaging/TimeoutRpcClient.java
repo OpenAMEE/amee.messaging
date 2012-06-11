@@ -14,15 +14,15 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A subclass of RpcClient that wraps primitiveCall such that a timeout is applied.
  */
 public class TimeoutRpcClient extends RpcClient {
 
-    private final Log log = LogFactory.getLog(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final ExecutorService executor = Executors.newCachedThreadPool();
 

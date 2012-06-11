@@ -5,8 +5,8 @@ import com.amee.messaging.config.MessagingConfig;
 import com.amee.messaging.config.QueueConfig;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ShutdownSignalException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -24,7 +24,7 @@ import java.io.IOException;
  */
 public abstract class MessageConsumer implements Runnable, SmartLifecycle, ApplicationContextAware {
 
-    private final Log log = LogFactory.getLog(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
     protected MessageService messageService;

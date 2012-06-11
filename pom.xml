@@ -18,6 +18,7 @@
         <!-- Note: These versions were last checked & upgraded on 14/04/2011. -->
         <commons-io.version>2.0.1</commons-io.version>
         <rabbitmq.version>2.7.1</rabbitmq.version>
+        <slf4j.version>1.6.1</slf4j.version>
         <spring.version>3.1.1.RELEASE</spring.version>
 
         <!-- Plugin versions -->
@@ -97,6 +98,18 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.rabbitmq</groupId>

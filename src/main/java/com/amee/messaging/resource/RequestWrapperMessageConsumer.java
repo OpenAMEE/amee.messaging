@@ -8,8 +8,8 @@ import com.amee.base.resource.TimedOutException;
 import com.amee.messaging.MapRpcMessageConsumer;
 import com.amee.messaging.config.ExchangeConfig;
 import com.amee.messaging.config.QueueConfig;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
@@ -27,7 +27,7 @@ import java.util.concurrent.*;
  */
 public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
 
-    private final Log log = LogFactory.getLog(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final static XMLOutputter XML_OUTPUTTER = new XMLOutputter();
 
