@@ -12,19 +12,19 @@
     <properties>
 
         <!-- Internal Versions. -->
-        <amee-base.version>1.2.1-SNAPSHOT</amee-base.version>
+        <amee-base.version>1.3.2-SNAPSHOT</amee-base.version>
 
         <!-- External Versions. -->
-        <!-- Note: These versions were last checked & upgraded on 14/04/2011. -->
-        <commons-io.version>2.0.1</commons-io.version>
-        <rabbitmq.version>2.7.1</rabbitmq.version>
-        <slf4j.version>1.6.1</slf4j.version>
+        <!-- Note: These versions were last checked & upgraded on 12/06/2012. -->
+        <commons-io.version>2.3</commons-io.version>
+        <rabbitmq.version>2.8.2</rabbitmq.version>
+        <slf4j.version>1.6.6</slf4j.version>
         <spring.version>3.1.1.RELEASE</spring.version>
 
         <!-- Plugin versions -->
-        <maven-compiler-plugin.version>2.3.2</maven-compiler-plugin.version>
-        <maven-release-plugin.version>2.2</maven-release-plugin.version>
-        <maven-surefire-plugin.version>2.8</maven-surefire-plugin.version>
+        <maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
+        <maven-release-plugin.version>2.3.1</maven-release-plugin.version>
+        <maven-surefire-plugin.version>2.12</maven-surefire-plugin.version>
         
         <!-- Other. -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
