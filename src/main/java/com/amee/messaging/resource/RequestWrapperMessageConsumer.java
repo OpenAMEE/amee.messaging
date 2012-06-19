@@ -158,7 +158,7 @@ public class RequestWrapperMessageConsumer extends MapRpcMessageConsumer {
         } catch (InterruptedException e) {
             log.error("handleWithTimeout() Caught InterruptedException (aborting): " + e.getMessage(), e);
         } catch (ExecutionException e) {
-            log.debug("handleWithTimeout() Caught ExecutionException: " + e.getMessage());
+            log.debug("handleWithTimeout() Caught ExecutionException: {}", e.getMessage());
             throw e.getCause();
         } finally {
             log.debug("handleWithTimeout() Canceling the task via its Future.");

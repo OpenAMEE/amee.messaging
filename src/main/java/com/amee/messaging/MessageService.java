@@ -66,7 +66,7 @@ public class MessageService {
             PublishConfig publishConfig,
             String routingKey,
             Message message) {
-        log.debug("publish() " + routingKey);
+        log.debug("publish() {}", routingKey);
         try {
             // Try to get a channel.
             Channel channel = getChannel();
@@ -127,7 +127,7 @@ public class MessageService {
             ExchangeConfig exchangeConfig,
             QueueConfig queueConfig,
             String bindingKey) throws IOException {
-        log.debug("getChannelAndBind() " + bindingKey);
+        log.debug("getChannelAndBind() {}", bindingKey);
         // Try to get a channel.
         Channel channel = getChannel();
         if (channel != null) {
